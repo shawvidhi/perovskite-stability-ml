@@ -9,7 +9,7 @@ Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect
 - Explainability for R&D: SHAP reveals drivers for design iteration.
 - Reproducible pipeline: tests, CI, and deterministic seeds.
 
-## What & Why (Intel relevance)
+## What & Why 
 - Physics-grounded features (t, μ, Δχ) reduce spurious correlations and support principled generalization.
 - Calibrated probabilities enable risk-aware down-selection for semiconductor R&D.
 - SHAP explainability clarifies drivers of stability for design iteration.
@@ -97,7 +97,7 @@ See tree in the issue description; key dirs: `src/perostab/`, `configs/`, `scrip
 ## Model Card
 See `model_card.md` for intended use, data, metrics, explainability, limitations, and next steps.
 
-## Resume/LinkedIn bullets
+## Highlights for Semiconductor R&D
 - Connected materials physics with ML by encoding Goldschmidt t, octahedral μ, and electronegativity gaps to predict ABX₃ stability with calibrated probabilities.
 - Built a tested, CI-backed pipeline (unit tests, pre-commit, GitHub Actions), producing explainable SHAP insights for materials down-selection.
 - Delivered robust slice analysis (by halide and B-cation) and uncertainty estimates, emulating production-grade screening for semiconductor R&D.
@@ -107,5 +107,3 @@ See `model_card.md` for intended use, data, metrics, explainability, limitations
 - Pre-commit: `pre-commit install` then `pre-commit run --all-files`.
 - Tests: `pytest -q`.
 
-## License
-MIT License (see `LICENSE`).
