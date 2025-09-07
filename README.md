@@ -1,8 +1,15 @@
 # Perovskite Stability ML
 
+[![CI](https://github.com/shawvidhi/perovskite-stability-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/shawvidhi/perovskite-stability-ml/actions/workflows/ci.yml)
+
 Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect Goldschmidt tolerance factor, octahedral factor, and electronegativity gaps with calibrated ML (RF/LR) and SHAP to explain what drives stability. The pipeline is tested, reproducible, and CI-backed—showcasing how materials science fundamentals and data science can accelerate materials screening. This approach generalizes to semiconductor materials selection.
 
-## What & Why 
+## Highlights
+- Materials down-selection: calibrated probabilities support thresholding for screening.
+- Explainability for R&D: SHAP reveals drivers for design iteration.
+- Reproducible pipeline: tests, CI, and deterministic seeds.
+
+## What & Why (Intel relevance)
 - Physics-grounded features (t, μ, Δχ) reduce spurious correlations and support principled generalization.
 - Calibrated probabilities enable risk-aware down-selection for semiconductor R&D.
 - SHAP explainability clarifies drivers of stability for design iteration.
@@ -25,9 +32,25 @@ Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect
 - Primary scoring: ROC-AUC; also F1, PR-AUC. Deterministic seeds.
 
 ## Results (typical on synthetic data)
-- ROC-AUC ~0.85–0.92; PR-AUC and F1 competitive; Brier score reasonable.
-- Slices by halide (Cl/Br/I) and B-cation (Ge/Sn/Pb) do not show catastrophic drops.
-- SHAP: μ and t dominate; Δχ_BX modulates the boundary as intended.
+
+Metrics (test set):
+
+| Metric    | Value |
+|-----------|-------|
+| ROC-AUC   | 0.677 |
+| PR-AUC    | 0.762 |
+| F1        | 0.764 |
+| Brier     | 0.216 |
+
+Figures:
+
+![ROC Curve](reports/figures/roc_curve.png)
+
+![PR Curve](reports/figures/pr_curve.png)
+
+![Calibration Curve](reports/figures/calibration_curve.png)
+
+![SHAP Summary (beeswarm)](reports/figures/shap_beeswarm.png)
 
 ## Explainability
 - Global SHAP summary (bar + beeswarm) and local waterfalls for representative stable/unstable/borderline compounds saved under `reports/figures/`.
@@ -39,6 +62,9 @@ Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect
 ```bash
 # 0) Install package and dev tools
 pip install -e .[dev]
+
+# One-command run (data → train → eval → SHAP)
+./scripts/run_all.sh
 
 # 1) Create synthetic data
 python scripts/make_synthetic_dataset.py --n 2500 --seed 42
@@ -55,7 +81,7 @@ python -m perostab.explain --model-path models/logreg.joblib --n-samples 500
 ```
 
 ## Pipeline Diagram
-```
+```mermaid
 flowchart LR
     A[make_synthetic_dataset.py] --> B[Feature build (t, μ, Δχ, one-hot)]
     B --> C[CV + Calibration (RF/LR)]
@@ -81,4 +107,5 @@ See `model_card.md` for intended use, data, metrics, explainability, limitations
 - Pre-commit: `pre-commit install` then `pre-commit run --all-files`.
 - Tests: `pytest -q`.
 
-
+## License
+MIT License (see `LICENSE`).
