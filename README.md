@@ -55,7 +55,7 @@ python -m perostab.explain --model-path models/logreg.joblib --n-samples 500
 ```
 
 ## Pipeline Diagram
-```mermaid
+```
 flowchart LR
     A[make_synthetic_dataset.py] --> B[Feature build (t, μ, Δχ, one-hot)]
     B --> C[CV + Calibration (RF/LR)]
