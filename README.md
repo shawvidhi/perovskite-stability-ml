@@ -37,6 +37,9 @@ Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect
 
 ## Quickstart
 ```bash
+# 0) Install package and dev tools
+pip install -e .[dev]
+
 # 1) Create synthetic data
 python scripts/make_synthetic_dataset.py --n 2500 --seed 42
 
@@ -80,4 +83,3 @@ See `model_card.md` for intended use, data, metrics, explainability, limitations
 
 ## License
 MIT License (see `LICENSE`).
-

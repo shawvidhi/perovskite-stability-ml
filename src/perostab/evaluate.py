@@ -28,7 +28,9 @@ from .utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def bootstrap_ci(vec_true: np.ndarray, vec_score: np.ndarray, metric_fn, n_boot: int = 1000, seed: int = 42) -> Tuple[float, float]:
+def bootstrap_ci(
+    vec_true: np.ndarray, vec_score: np.ndarray, metric_fn, n_boot: int = 1000, seed: int = 42
+) -> Tuple[float, float]:
     rng = np.random.default_rng(seed)
     n = len(vec_true)
     stats = []
@@ -73,6 +75,22 @@ def main() -> None:
     with open(reports_dir / "metrics.json", "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
 
+    # Bootstrap CIs for ROC-AUC and F1
+    y_np = splits.y_test.values
+    auc_lo, auc_hi = bootstrap_ci(y_np, proba, roc_auc_score, n_boot=1000, seed=42)
+    f1_preds = (proba >= 0.5).astype(int)
+    f1_lo, f1_hi = bootstrap_ci(y_np, f1_preds, f1_score, n_boot=1000, seed=42)
+    with open(reports_dir / "metrics_with_ci.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                **metrics,
+                "roc_auc_ci": [auc_lo, auc_hi],
+                "f1_ci": [f1_lo, f1_hi],
+            },
+            f,
+            indent=2,
+        )
+
     # ROC curve
     RocCurveDisplay.from_predictions(splits.y_test, proba)
     save_plot(Path("reports/figures/roc_curve.png"))
@@ -108,40 +126,33 @@ def main() -> None:
     plt.colorbar(label="Predicted stability prob")
     save_plot(Path("reports/figures/decision_space_t_mu.png"))
 
-    # Slice metrics by X and B
+    # Slice metrics by X and B (test set only)
+    df_test = full_df.iloc[splits.y_test.index]
     for col, fname in [("X", "slice_metrics_by_X.png"), ("B", "slice_metrics_by_B.png")]:
-        groups = full_df[col].unique()
-        vals = []
-        for g in groups:
-            mask = full_df[col] == g
-            y_true = splits.y_test[mask.iloc[splits.y_test.index]].values if col in ["X", "B"] else splits.y_test.values
-            # Align proba to the same indices for safety
-            y_true = splits.y_test.values
-            # Simpler approach: compute on test subset belonging to group
-        # Recompute pairs on test set only
-        df_test = full_df.iloc[splits.y_test.index]
         gvals = []
         for g in df_test[col].unique():
-            m = df_test[col] == g
-            y_g = splits.y_test[m]
+            m = (df_test[col] == g).values
+            y_g = splits.y_test.values[m]
             p_g = proba[m]
             if len(y_g) < 5:
                 continue
-            gvals.append((g, roc_auc_score(y_g, p_g), f1_score(y_g, (p_g >= 0.5).astype(int))))
-        if gvals:
-            labels, aucs, f1s = zip(*gvals)
-            x = np.arange(len(labels))
-            width = 0.35
-            plt.figure(figsize=(6, 3))
-            plt.bar(x - width / 2, aucs, width, label="ROC-AUC")
-            plt.bar(x + width / 2, f1s, width, label="F1")
-            plt.xticks(x, labels)
-            plt.ylim(0, 1)
-            plt.legend()
-            plt.title(f"Slice metrics by {col}")
-            save_plot(Path(f"reports/figures/{'slice_metrics_by_X.png' if col=='X' else 'slice_metrics_by_B.png'}"))
+            auc_g = roc_auc_score(y_g, p_g)
+            f1_g = f1_score(y_g, (p_g >= 0.5).astype(int))
+            gvals.append((g, auc_g, f1_g))
+        if not gvals:
+            continue
+        labels, aucs, f1s = zip(*gvals)
+        x = np.arange(len(labels))
+        width = 0.35
+        plt.figure(figsize=(6, 3))
+        plt.bar(x - width / 2, aucs, width, label="ROC-AUC")
+        plt.bar(x + width / 2, f1s, width, label="F1")
+        plt.xticks(x, labels)
+        plt.ylim(0, 1)
+        plt.legend()
+        plt.title(f"Slice metrics by {col}")
+        save_plot(Path(f"reports/figures/{fname}"))
 
 
 if __name__ == "__main__":
     main()
-

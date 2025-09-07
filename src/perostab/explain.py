@@ -68,7 +68,9 @@ def main() -> None:
         # RF does not need scaling
         explainer = shap.TreeExplainer(clf)
         shap_values = explainer.shap_values(X)[1]  # class 1
-        shap.summary_plot(shap_values, X, feature_names=feature_names, show=False, plot_type="bar")
+        shap.summary_plot(
+            shap_values, X, feature_names=feature_names, show=False, plot_type="bar"
+        )
         save_fig(Path("reports/figures/shap_summary_bar.png"))
         shap.summary_plot(shap_values, X, feature_names=feature_names, show=False)
         save_fig(Path("reports/figures/shap_beeswarm.png"))
@@ -78,11 +80,15 @@ def main() -> None:
             raise RuntimeError("Expected scaling step for logistic regression pipeline")
         scaler = base_pipe.named_steps["scale"]
         Xtr = scaler.transform(X)
-        explainer = shap.LinearExplainer(clf, Xtr, feature_dependence="independent")
+        try:
+            feat_out = list(scaler.get_feature_names_out())  # type: ignore[attr-defined]
+        except Exception:
+            feat_out = feature_names
+        explainer = shap.LinearExplainer(clf, Xtr)
         shap_values = explainer.shap_values(Xtr)
-        shap.summary_plot(shap_values, X, feature_names=feature_names, show=False, plot_type="bar")
+        shap.summary_plot(shap_values, Xtr, feature_names=feat_out, show=False, plot_type="bar")
         save_fig(Path("reports/figures/shap_summary_bar.png"))
-        shap.summary_plot(shap_values, X, feature_names=feature_names, show=False)
+        shap.summary_plot(shap_values, Xtr, feature_names=feat_out, show=False)
         save_fig(Path("reports/figures/shap_beeswarm.png"))
 
     # Local waterfalls for three representative samples: stable, unstable, borderline
@@ -100,8 +106,13 @@ def main() -> None:
                 base_val = expl.expected_value[1]
             else:
                 sv = shap_values[idx]
-                base_val = explainer.expected_value
-            shap.plots._waterfall.waterfall_legacy(base_val, sv, feature_names=feature_names, show=False)
+                base_val = explainer.expected_value  # type: ignore[attr-defined]
+            shap.plots._waterfall.waterfall_legacy(
+                base_val,
+                sv,
+                feature_names=(feature_names if is_rf else feat_out),
+                show=False,
+            )
             save_fig(Path(f"reports/figures/shap_waterfall_{tag}.png"))
         except Exception as e:
             logger.warning("Failed waterfall for %s: %s", tag, e)
@@ -109,4 +120,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
