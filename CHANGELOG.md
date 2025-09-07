@@ -8,4 +8,3 @@ All notable changes to this project will be documented in this file.
 - RF and LR models with CV and calibration.
 - Evaluation (ROC, PR, calibration, confusion matrix, slices) and SHAP explainability.
 - Tests, pre-commit, and GitHub Actions CI.
-

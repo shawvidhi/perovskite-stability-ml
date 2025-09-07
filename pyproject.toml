@@ -6,9 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "perostab"
 version = "0.1.0"
 description = "Predict ABX3 perovskite stability with physics-aware descriptors"
-authors = [{ name = "Aditya", email = "" }]
+authors = [{ name = "Aditya" }]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
   "numpy>=1.26",
   "pandas>=2.0",

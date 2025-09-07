@@ -38,4 +38,3 @@ def apply_label_rule(
     p = stability_probability(t, mu, delta_chi_bx, delta_chi_ax)
     y = sample_label(p, rng)
     return p, y
-

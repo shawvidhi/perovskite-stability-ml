@@ -1,0 +1,8 @@
+cv_folds: 5
+data_csv: data/synthetic/abx3_synthetic.csv
+model: logreg
+models_dir: models
+output_model_path: models/logreg.joblib
+scoring: roc_auc
+seed: 42
+test_size: 0.2

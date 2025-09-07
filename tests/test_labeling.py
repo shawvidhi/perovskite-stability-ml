@@ -1,5 +1,3 @@
-import numpy as np
-
 from perostab.labeling import stability_probability
 
 
@@ -10,4 +8,3 @@ def test_stability_probability_bounds_and_sense():
     assert 0.0 < p_good < 1.0
     assert 0.0 < p_bad < 1.0
     assert p_good > p_bad + 0.2
-

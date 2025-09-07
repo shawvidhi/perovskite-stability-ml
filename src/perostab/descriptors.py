@@ -6,7 +6,6 @@ from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
 
-
 SQRT2 = np.sqrt(2.0)
 
 
@@ -16,19 +15,19 @@ class Ion:
     charge: int
 
 
-def goldschmidt_t(r_a: float, r_b: float, r_x: float) -> float:
-    return float((r_a + r_x) / (SQRT2 * (r_b + r_x)))
+def goldschmidt_t(r_a, r_b, r_x):
+    return (r_a + r_x) / (SQRT2 * (r_b + r_x))
 
 
-def octahedral_mu(r_b: float, r_x: float) -> float:
-    return float(r_b / r_x)
+def octahedral_mu(r_b, r_x):
+    return r_b / r_x
 
 
-def electronegativity_deltas(chi_a: float, chi_b: float, chi_x: float) -> Tuple[float, float, float]:
-    d_ax = abs(chi_a - chi_x)
-    d_bx = abs(chi_b - chi_x)
+def electronegativity_deltas(chi_a, chi_b, chi_x):
+    d_ax = np.abs(chi_a - chi_x)
+    d_bx = np.abs(chi_b - chi_x)
     ratio = d_bx / (d_ax + 1e-6)
-    return float(d_ax), float(d_bx), float(ratio)
+    return d_ax, d_bx, ratio
 
 
 def is_charge_neutral(a: Ion, b: Ion, x: Ion) -> bool:
@@ -72,4 +71,3 @@ def build_feature_frame(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, str]]
 
     meta = {"n_numeric": str(X_num.shape[1]), "n_categorical": str(cats.shape[1])}
     return X, meta
-

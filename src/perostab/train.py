@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Dict
 
 import joblib
-import pandas as pd
 import yaml
 from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 
@@ -14,7 +13,6 @@ from .dataset import get_cv, save_feature_list, train_test_split_features
 from .models import build_grid_search, logreg_spec, rf_spec
 from .utils.logger import get_logger
 from .utils.seeds import set_global_seed
-
 
 logger = get_logger(__name__)
 
@@ -68,7 +66,12 @@ def main() -> None:
 
     models_dir = Path(cfg.get("models_dir", "models"))
     models_dir.mkdir(parents=True, exist_ok=True)
-    out_path = Path(cfg.get("output_model_path", f"models/{'rf' if model_type=='random_forest' else 'logreg'}.joblib"))
+    out_path = Path(
+        cfg.get(
+            "output_model_path",
+            f"models/{'rf' if model_type=='random_forest' else 'logreg'}.joblib",
+        )
+    )
     joblib.dump(best, out_path)
     with open(models_dir / "cv_summary.json", "w", encoding="utf-8") as f:
         json.dump({"best_params": gs.best_params_, "metrics_est": metrics}, f, indent=2)
@@ -82,4 +85,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

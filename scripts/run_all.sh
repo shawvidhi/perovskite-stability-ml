@@ -7,7 +7,6 @@ python -m perostab.train --config configs/model/random_forest.yaml
 python -m perostab.train --config configs/model/logreg.yaml
 
 python -m perostab.evaluate --model-path models/rf.joblib
-python -m perostab.explain --model-path models/rf.joblib --n-samples 500
+python -m perostab.explain --model-path models/logreg.joblib --n-samples 500
 
 echo "Done: data, models, evaluation, and SHAP figures are generated."
-

@@ -24,4 +24,3 @@ Rapid pre-screening of ABX₃ (halide perovskites) for geometric and chemical st
 - Integrate real datasets; validate against curated experimental compilations.
 - Active learning for boundary exploration; conformal prediction for coverage guarantees.
 - Physics-informed/graph models when crystal structures are available.
-

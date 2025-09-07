@@ -22,4 +22,3 @@ def test_octahedral_mu_monotonicity():
 
     mu3 = octahedral_mu(1.0, 2.1)
     assert mu3 < mu1  # increasing r_X decreases mu
-

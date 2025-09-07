@@ -1,0 +1,12 @@
+{
+  "best_params": {
+    "clf__estimator__C": 0.1,
+    "clf__estimator__class_weight": "balanced",
+    "clf__estimator__penalty": "l1"
+  },
+  "metrics_est": {
+    "roc_auc": 0.6838645182060014,
+    "average_precision": 0.7650406732565895,
+    "f1": 0.7569141193595342
+  }
+}

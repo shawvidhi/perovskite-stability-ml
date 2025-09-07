@@ -12,7 +12,6 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from .descriptors import build_feature_frame, goldschmidt_t, octahedral_mu
 from .labeling import apply_label_rule
 
-
 ION_TABLE: Dict[str, Dict[str, Dict[str, Tuple[float, float]]]] = {
     "A": {
         "K": {"r": (1.45, 1.75), "chi": (0.7, 1.0)},
@@ -103,7 +102,9 @@ def load_dataset_csv(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def build_features_from_csv(path: Path) -> Tuple[pd.DataFrame, pd.Series, List[str], Dict[str, str]]:
+def build_features_from_csv(
+    path: Path,
+) -> Tuple[pd.DataFrame, pd.Series, List[str], Dict[str, str]]:
     df = load_dataset_csv(path)
     X, meta = build_feature_frame(df)
     y = df["y"].astype(int)
@@ -128,4 +129,3 @@ def save_feature_list(feature_names: List[str], path: Path) -> None:
 
 def get_cv(n_splits: int = 5, seed: int = 42) -> StratifiedKFold:
     return StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
-

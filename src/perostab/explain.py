@@ -2,16 +2,13 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Tuple
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from .dataset import build_features_from_csv
 from .utils.logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -24,18 +21,19 @@ def save_fig(path: Path) -> None:
 
 
 def get_base_estimator(model):
-    # Pipeline('base' -> inner pipeline ('scale','clf'), 'cal' -> calibrator)
-    base_pipe = None
+    # Return (pipeline, underlying classifier) unwrapping CalibratedClassifierCV if present
+    base_pipe = model if hasattr(model, "named_steps") else None
     clf = None
-    if hasattr(model, "named_steps"):
-        if "base" in model.named_steps:
-            base_pipe = model.named_steps["base"]
-            if hasattr(base_pipe, "named_steps") and "clf" in base_pipe.named_steps:
-                clf = base_pipe.named_steps["clf"]
-        elif "clf" in model.named_steps:
-            clf = model.named_steps["clf"]
-    elif hasattr(model, "base_estimator"):
-        clf = model.base_estimator
+    if hasattr(model, "named_steps") and "clf" in model.named_steps:
+        step = model.named_steps["clf"]
+        try:
+            # CalibratedClassifierCV exposes .estimator
+            if hasattr(step, "estimator") and step.estimator is not None:
+                clf = step.estimator
+            else:
+                clf = step
+        except Exception:
+            clf = step
     return base_pipe, clf
 
 
@@ -62,21 +60,35 @@ def main() -> None:
     if clf is None:
         raise RuntimeError("Could not locate base classifier inside the model pipeline for SHAP")
 
+    # Try to access the calibrator object for fitted estimators
+    calibrator = None
+    if hasattr(model, "named_steps") and "clf" in model.named_steps:
+        calibrator = model.named_steps["clf"]
+
     is_rf = clf.__class__.__name__.startswith("RandomForest")
 
     if is_rf:
-        # RF does not need scaling
-        explainer = shap.TreeExplainer(clf)
-        shap_values = explainer.shap_values(X)[1]  # class 1
-        shap.summary_plot(
-            shap_values, X, feature_names=feature_names, show=False, plot_type="bar"
-        )
+        # RF: use model-agnostic unified API for stability across SHAP versions
+        rf_est = None
+        if calibrator is not None and hasattr(calibrator, "calibrated_classifiers_"):
+            cals = calibrator.calibrated_classifiers_
+            if cals:
+                rf_est = getattr(cals[0], "estimator", None)
+        if rf_est is None:
+            rf_est = clf
+        explainer = shap.Explainer(rf_est, X, feature_names=feature_names)
+        sv = explainer(X)
+        shap.plots.bar(sv, show=False)
         save_fig(Path("reports/figures/shap_summary_bar.png"))
-        shap.summary_plot(shap_values, X, feature_names=feature_names, show=False)
+        shap.plots.beeswarm(sv, show=False)
         save_fig(Path("reports/figures/shap_beeswarm.png"))
     else:
-        # LogisticRegression: transform numeric features then explain linear model on transformed space
-        if base_pipe is None or "scale" not in base_pipe.named_steps:
+        # LogisticRegression: explain the fitted linear model on transformed space
+        if (
+            base_pipe is None
+            or not hasattr(base_pipe, "named_steps")
+            or "scale" not in base_pipe.named_steps
+        ):
             raise RuntimeError("Expected scaling step for logistic regression pipeline")
         scaler = base_pipe.named_steps["scale"]
         Xtr = scaler.transform(X)
@@ -84,11 +96,19 @@ def main() -> None:
             feat_out = list(scaler.get_feature_names_out())  # type: ignore[attr-defined]
         except Exception:
             feat_out = feature_names
-        explainer = shap.LinearExplainer(clf, Xtr)
-        shap_values = explainer.shap_values(Xtr)
-        shap.summary_plot(shap_values, Xtr, feature_names=feat_out, show=False, plot_type="bar")
+        # Use fitted base estimator from calibrator if available
+        lr_est = None
+        if calibrator is not None and hasattr(calibrator, "calibrated_classifiers_"):
+            cals = calibrator.calibrated_classifiers_
+            if cals:
+                lr_est = getattr(cals[0], "estimator", None)
+        if lr_est is None:
+            lr_est = clf
+        explainer = shap.Explainer(lr_est, Xtr, feature_names=feat_out)
+        sv = explainer(Xtr)
+        shap.plots.bar(sv, show=False)
         save_fig(Path("reports/figures/shap_summary_bar.png"))
-        shap.summary_plot(shap_values, Xtr, feature_names=feat_out, show=False)
+        shap.plots.beeswarm(sv, show=False)
         save_fig(Path("reports/figures/shap_beeswarm.png"))
 
     # Local waterfalls for three representative samples: stable, unstable, borderline
@@ -101,18 +121,9 @@ def main() -> None:
     for idx, tag in examples:
         try:
             if is_rf:
-                expl = shap.TreeExplainer(clf)
-                sv = expl.shap_values(X.iloc[[idx]])[1][0]
-                base_val = expl.expected_value[1]
+                shap.plots.waterfall(sv[idx], show=False)
             else:
-                sv = shap_values[idx]
-                base_val = explainer.expected_value  # type: ignore[attr-defined]
-            shap.plots._waterfall.waterfall_legacy(
-                base_val,
-                sv,
-                feature_names=(feature_names if is_rf else feat_out),
-                show=False,
-            )
+                shap.plots.waterfall(sv[idx], show=False)
             save_fig(Path(f"reports/figures/shap_waterfall_{tag}.png"))
         except Exception as e:
             logger.warning("Failed waterfall for %s: %s", tag, e)

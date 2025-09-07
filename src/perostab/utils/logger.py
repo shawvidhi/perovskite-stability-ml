@@ -13,4 +13,3 @@ def get_logger(name: str = "perostab", level: int = logging.INFO) -> logging.Log
     logger.addHandler(handler)
     logger.propagate = False
     return logger
-

@@ -1,0 +1,20 @@
+{
+  "features": [
+    "t",
+    "mu",
+    "delta_t",
+    "delta_mu",
+    "delta_chi_AX",
+    "delta_chi_BX",
+    "delta_chi_ratio",
+    "A_Cs",
+    "A_K",
+    "A_Rb",
+    "B_Ge",
+    "B_Pb",
+    "B_Sn",
+    "X_Br",
+    "X_Cl",
+    "X_I"
+  ]
+}

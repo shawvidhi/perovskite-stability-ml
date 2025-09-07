@@ -50,8 +50,8 @@ python -m perostab.train --config configs/model/logreg.yaml
 # 3) Evaluate the saved best model on test set
 python -m perostab.evaluate --model-path models/rf.joblib
 
-# 4) Generate SHAP explanations for saved model
-python -m perostab.explain --model-path models/rf.joblib --n-samples 500
+# 4) Generate SHAP explanations for saved model (use LR for stable SHAP)
+python -m perostab.explain --model-path models/logreg.joblib --n-samples 500
 ```
 
 ## Pipeline Diagram

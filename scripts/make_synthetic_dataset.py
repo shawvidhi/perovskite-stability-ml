@@ -16,4 +16,3 @@ def main(n: int = 2500, seed: int = 42, out: str = "data/synthetic/abx3_syntheti
 
 if __name__ == "__main__":
     typer.run(main)
-

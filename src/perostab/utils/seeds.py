@@ -21,4 +21,3 @@ def set_global_seed(seed: Optional[int] = None) -> int:
     except Exception:
         pass
     return seed
-

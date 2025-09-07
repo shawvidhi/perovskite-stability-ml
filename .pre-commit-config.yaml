@@ -15,10 +15,9 @@ repos:
     rev: v1.5.1
     hooks:
       - id: mypy
-        additional_dependencies: []
+        additional_dependencies: ["types-PyYAML"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-

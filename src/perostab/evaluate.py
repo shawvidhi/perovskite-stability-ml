@@ -3,12 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Tuple
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
@@ -21,9 +20,12 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from .dataset import build_features_from_csv, load_dataset_csv, train_test_split_features
+from .dataset import (
+    build_features_from_csv,
+    load_dataset_csv,
+    train_test_split_features,
+)
 from .utils.logger import get_logger
-
 
 logger = get_logger(__name__)
 

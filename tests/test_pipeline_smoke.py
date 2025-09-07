@@ -1,11 +1,14 @@
-import joblib
-import numpy as np
 from pathlib import Path
 
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
 
-from perostab.dataset import generate_synthetic_dataset, build_feature_frame, train_test_split_features, save_dataset_csv
+from perostab.dataset import (
+    generate_synthetic_dataset,
+    save_dataset_csv,
+    train_test_split_features,
+)
 
 
 def test_end_to_end_smoke(tmp_path: Path):
@@ -28,4 +31,3 @@ def test_end_to_end_smoke(tmp_path: Path):
     joblib.dump(clf, model_path)
     loaded = joblib.load(model_path)
     assert hasattr(loaded, "predict_proba")
-
