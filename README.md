@@ -2,7 +2,7 @@
 
 Predicting ABX₃ perovskite stability from physics-aware descriptors. I connect Goldschmidt tolerance factor, octahedral factor, and electronegativity gaps with calibrated ML (RF/LR) and SHAP to explain what drives stability. The pipeline is tested, reproducible, and CI-backed—showcasing how materials science fundamentals and data science can accelerate materials screening. This approach generalizes to semiconductor materials selection.
 
-## What & Why (Intel relevance)
+## What & Why 
 - Physics-grounded features (t, μ, Δχ) reduce spurious correlations and support principled generalization.
 - Calibrated probabilities enable risk-aware down-selection for semiconductor R&D.
 - SHAP explainability clarifies drivers of stability for design iteration.
@@ -81,5 +81,4 @@ See `model_card.md` for intended use, data, metrics, explainability, limitations
 - Pre-commit: `pre-commit install` then `pre-commit run --all-files`.
 - Tests: `pytest -q`.
 
-## License
-MIT License (see `LICENSE`).
+
