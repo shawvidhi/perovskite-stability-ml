@@ -1,0 +1,5 @@
+seed: 42
+data_csv: data/synthetic/abx3_synthetic.csv
+models_dir: models
+reports_dir: reports
+
