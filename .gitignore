@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.egg-info/
+.mypy_cache/
+.DS_Store
+models/*.joblib
+reports/figures/*.png
+reports/tables/*.csv
+reports/metrics.json
+.ipynb_checkpoints/
+
